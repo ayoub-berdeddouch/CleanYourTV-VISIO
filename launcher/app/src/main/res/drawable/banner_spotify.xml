@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="320dp" android:height="180dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <gradient
+                android:angle="315"
+                android:startColor="#FF18221B"
+                android:endColor="#FF0D120F" />
+            <stroke
+                android:width="1.5dp"
+                android:color="#331ED760" />
+        </shape>
+    </item>
+    <item
+        android:width="84dp"
+        android:height="84dp"
+        android:gravity="center"
+        android:drawable="@drawable/ic_spotify_logo" />
+</layer-list>

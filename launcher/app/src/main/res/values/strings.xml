@@ -98,6 +98,8 @@
     <string name="dock_edit_pick_place">Choose the dock place for this app and press OK. Back to cancel.</string>
     <string name="reorder">Reorder apps</string>
     <string name="tile_move">Move</string>
+    <string name="tile_uninstall">Uninstall</string>
+    <string name="room_3d">Salon 3D</string>
     <string name="reorder_hint">OK picks up an app, arrows move it, Back places it. Back again to finish.</string>
     <string name="reorder_not_saved">Couldn\'t save the new order</string>
     <string name="app_library">App library</string>
@@ -145,4 +147,18 @@
     <!-- Cinematic top shelf (cinematic_home): the line under the focused dock app's name; %1$s is when it was
          last opened, e.g. "5 minutes ago" or "yesterday, 9:40 pm". -->
     <string name="last_opened">Last opened %1$s</string>
+
+    <!-- Benguerir Weather -->
+    <string name="weather_benguerir" translatable="false">☀️ 24°C  Benguerir</string>
+
+    <!-- Football matches (FC Barcelona & Morocco) -->
+    <string name="match_barca_title" translatable="false">Barça vs Real Madrid</string>
+    <string name="match_barca_meta" translatable="false">La Liga · Dimanche 20:00</string>
+    <string name="match_morocco_title" translatable="false">Maroc vs Côte d\'Ivoire</string>
+    <string name="match_morocco_meta" translatable="false">Équipe Nationale · 14 Nov 20:00</string>
+
+    <!-- Ambient / Lock Screen: Thought of the Day & Adkar -->
+    <string name="thought_kicker" translatable="false">ذِكْرُ الْيَوْم · THOUGHT FOR TODAY</string>
+    <string name="adkar_prayer" translatable="false">" سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ "</string>
+    <string name="lock_prayer_times" translatable="false">الفجر 5:12   الظهر 12:22   العصر 15:35   المغرب 18:44   العشاء 19:58</string>
 </resources>

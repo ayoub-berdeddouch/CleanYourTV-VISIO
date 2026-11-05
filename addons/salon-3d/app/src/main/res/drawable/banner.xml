@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp" android:height="180dp"
+    android:viewportWidth="320" android:viewportHeight="180">
+    <path android:fillColor="#FF0E141B" android:pathData="M0,0h320v180h-320z" />
+    <!-- Ambient TV Glow -->
+    <path android:fillColor="#3300B4D8" android:pathData="M60,15h200v90h-200z" />
+    <!-- Sleek TV Screen -->
+    <path android:fillColor="#FF18222D" android:pathData="M80,25h160v70h-160z" />
+    <path android:fillColor="#FF00B4D8" android:pathData="M82,27h156v66h-156z" />
+    <!-- Minimalist Luxury Sofa -->
+    <path android:fillColor="#FF2A374A" android:pathData="M50,115h220v35h-220z" />
+    <path android:fillColor="#FFE5A93C" android:pathData="M70,110h40v15h-40z" />
+    <path android:fillColor="#FFE5A93C" android:pathData="M210,110h40v15h-40z" />
+    <!-- Modern Coffee Table -->
+    <path android:fillColor="#FF1E2633" android:pathData="M110,140h100v16h-100z" />
+    <!-- Floor Line -->
+    <path android:fillColor="#FF131A22" android:pathData="M0,155h320v25h-320z" />
+</vector>

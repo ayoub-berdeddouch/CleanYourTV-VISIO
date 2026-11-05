@@ -58,5 +58,59 @@
             android:fontFamily="@string/font_regular"
             android:letterSpacing="0.14"
             android:textAllCaps="true" />
+
+        <!-- Golden accent divider -->
+        <View
+            android:layout_width="320dp"
+            android:layout_height="2dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="14dp"
+            android:background="#E5A93C" />
+
+        <!-- Prayer Times Timeline -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="@string/lock_prayer_times"
+            android:textColor="#E5A93C"
+            android:textSize="17sp"
+            android:fontFamily="@string/font_medium"
+            android:letterSpacing="0.06" />
+
+        <!-- Thought of the Day / Adkar -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/thought_kicker"
+            android:textColor="#E5A93C"
+            android:textSize="11sp"
+            android:fontFamily="@string/font_medium"
+            android:letterSpacing="0.22"
+            android:textAllCaps="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/adkar_prayer"
+            android:textColor="#FFFFFFFF"
+            android:textSize="22sp"
+            android:fontFamily="@string/font_regular" />
+
+        <!-- Location caption -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="10dp"
+            android:text="📍 Benguerir, Maroc · 24°C"
+            android:textColor="#66FFFFFF"
+            android:textSize="12sp"
+            android:fontFamily="@string/font_regular" />
     </LinearLayout>
 </FrameLayout>

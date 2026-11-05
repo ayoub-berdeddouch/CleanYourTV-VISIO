@@ -53,8 +53,11 @@ public final class WeatherActivity extends Activity {
         changeCity.setOnClickListener(v -> pickCity());
         changeCity.requestFocus();
         if (!place.contains("name")) {
-            message.setText(R.string.pick_first);
-            pickCity();
+            place.edit().putString("name", "Benguerir")
+                .putString("country", "Morocco")
+                .putLong("lat", Double.doubleToRawLongBits(32.2345))
+                .putLong("lon", Double.doubleToRawLongBits(-7.9540))
+                .apply();
         }
     }
 

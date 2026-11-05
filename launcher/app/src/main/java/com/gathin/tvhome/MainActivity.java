@@ -55,10 +55,14 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.SoundEffectConstants;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.FrameLayout;
@@ -177,6 +181,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private List<RaceWeekend.Race> raceCalendar;
     private View racePanel;
     private TextView raceKicker, raceHeadline, raceSessions;
+    private View btnSalon3d;
+    private View mainPage;
+    private FrameLayout roomPage;
+    private WebView roomWebView;
+    private final Handler tileLongPressHandler = new Handler(Looper.getMainLooper());
+    private boolean tileLongPressTriggered;
     /** config.xml show_stats, overridable by a theme. Off: the line is gone and nothing is read. */
     private boolean showStats;
     private boolean shamsi;
@@ -595,6 +605,24 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST);
             else open(systemIntent(Settings.ACTION_SETTINGS));
         });
+        btnSalon3d = findViewById(R.id.btnSalon3d);
+        if (btnSalon3d != null) {
+            btnSalon3d.setOnClickListener(v -> showRoomPage());
+        }
+        mainPage = findViewById(R.id.mainPage);
+        roomPage = findViewById(R.id.roomPage);
+        roomWebView = findViewById(R.id.roomWebView);
+        if (roomWebView != null) {
+            WebSettings ws = roomWebView.getSettings();
+            ws.setJavaScriptEnabled(true);
+            ws.setDomStorageEnabled(true);
+            ws.setAllowFileAccess(true);
+            ws.setAllowContentAccess(true);
+            ws.setMediaPlaybackRequiresUserGesture(false);
+            roomWebView.setBackgroundColor(0xFF06080D);
+            roomWebView.addJavascriptInterface(new RoomBridge(), "AndroidBridge");
+            roomWebView.loadUrl("file:///android_asset/salon.html");
+        }
         btnReorder = findViewById(R.id.btnReorder);
         btnReorder.setOnClickListener(v -> toggleReorder());
         btnReorder.setVisibility(cfg.reorderButton ? View.VISIBLE : View.GONE);
@@ -760,6 +788,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        if (roomPage != null && roomPage.getVisibility() == View.VISIBLE) {
+            showMainPage();
+        }
         if (openLauncherSettingsIfAsked(intent)) return;
         if (openInputsIfAsked(intent)) return;
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
@@ -1109,24 +1140,62 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      */
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (handleSettingsKey(event)) return true;
-        if (tileMenuEnabled && !reordering && openPopup == null && cardPrompt == null
-                && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
-            int position = focusedTilePosition();
-            if (position >= 0 && position < adapter.appCount()
-                    && !getPackageName().equals(adapter.packageAt(position))) {
+        if (roomPage != null && roomPage.getVisibility() == View.VISIBLE) {
+            if (event.getKeyCode() == KeyEvent.KEYCODE_BACK || event.getKeyCode() == KeyEvent.KEYCODE_ESCAPE) {
                 if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
-                    onTileLongPress(position, getCurrentFocus());
+                    showMainPage();
                 }
                 return true;
+            }
+            if (roomWebView != null) {
+                return roomWebView.dispatchKeyEvent(event);
+            }
+            return true;
+        }
+
+        if (handleSettingsKey(event)) return true;
+        int code = event.getKeyCode();
+        boolean ok = code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER
+                || code == KeyEvent.KEYCODE_NUMPAD_ENTER;
+
+        if (tileMenuEnabled && !reordering && openPopup == null && cardPrompt == null) {
+            if (code == KeyEvent.KEYCODE_MENU) {
+                int position = focusedTilePosition();
+                if (position >= 0 && position < adapter.appCount()
+                        && !getPackageName().equals(adapter.packageAt(position))) {
+                    if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
+                        onTileLongPress(position, getCurrentFocus());
+                    }
+                    return true;
+                }
+            } else if (ok) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    if (event.getRepeatCount() == 0) {
+                        tileLongPressTriggered = false;
+                        int pos = focusedTilePosition();
+                        View f = getCurrentFocus();
+                        if (pos >= 0 && pos < adapter.appCount() && !getPackageName().equals(adapter.packageAt(pos))) {
+                            tileLongPressHandler.removeCallbacksAndMessages(null);
+                            tileLongPressHandler.postDelayed(() -> {
+                                tileLongPressTriggered = true;
+                                onTileLongPress(pos, f != null ? f : grid);
+                            }, ViewConfiguration.getLongPressTimeout());
+                        }
+                    }
+                } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                    tileLongPressHandler.removeCallbacksAndMessages(null);
+                    if (tileLongPressTriggered) {
+                        tileLongPressTriggered = false;
+                        return true;
+                    }
+                }
+            } else {
+                tileLongPressHandler.removeCallbacksAndMessages(null);
             }
         }
         if (!reordering) return super.dispatchKeyEvent(event);
         if (dockEditing) return dispatchDockEdit(event);
         boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
-        int code = event.getKeyCode();
-        boolean ok = code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER
-                || code == KeyEvent.KEYCODE_NUMPAD_ENTER;
         boolean back = code == KeyEvent.KEYCODE_BACK || code == KeyEvent.KEYCODE_ESCAPE;
         if (movingKey != null) {
             switch (code) {
@@ -2910,11 +2979,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (200 * density));
-        if (dockRow && position < adapter.movableCount()) {
-            boolean inDock = position < COLUMNS;
-            addSettingsMenuRow(rows, popup, inDock ? R.string.tile_replace_in_dock : R.string.tile_add_to_dock,
-                    () -> startDockEditFor(key, inDock));
-        }
+        // 1. Ouvrir (Open)
+        addSettingsMenuRow(rows, popup, R.string.library_open, () -> card.performClick());
+        // 2. Déplacer (Move)
         if (position < adapter.movableCount()) addSettingsMenuRow(rows, popup, R.string.tile_move, () -> {
             if (!beginReorder()) return;
             int at = adapter.positionOf(key);   // beginReorder can rebuild the tiles
@@ -2923,10 +2990,27 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             pickUp(at);
             Toast.makeText(this, R.string.reorder_hint, Toast.LENGTH_LONG).show();
         });
+        // 3. Modifier dans le dock (Dock edit)
+        if (dockRow && position < adapter.movableCount()) {
+            boolean inDock = position < COLUMNS;
+            addSettingsMenuRow(rows, popup, inDock ? R.string.tile_replace_in_dock : R.string.tile_add_to_dock,
+                    () -> startDockEditFor(key, inDock));
+        }
+        // 4. Désinstaller (Uninstall)
+        addSettingsMenuRow(rows, popup, R.string.tile_uninstall, () -> {
+            Intent uninst = new Intent(Intent.ACTION_UNINSTALL_PACKAGE, Uri.parse("package:" + pkg));
+            uninst.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+            try {
+                open(uninst);
+            } catch (Exception ex) {
+                open(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg)));
+            }
+        });
         if (appLibraryEnabled) addSettingsMenuRow(rows, popup, R.string.library_remove_shortcut, () -> {
             if (LibraryApps.save(this, pkg, false)) reloadApps(false);
             else Toast.makeText(this, R.string.library_save_failed, Toast.LENGTH_LONG).show();
         });
+        // 5. Détails de l'appli (App Info)
         addSettingsMenuRow(rows, popup, R.string.library_app_info, () -> open(new Intent(
                 Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg))));
         panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
@@ -3143,6 +3227,63 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 return getString(R.string.card_state_new_label);
             default:
                 return getString(R.string.card_state_new);
+        }
+    }
+
+    private void showRoomPage() {
+        if (roomPage == null) return;
+        if (mainPage != null) {
+            mainPage.animate().alpha(0f).setDuration(220).withEndAction(() -> {
+                mainPage.setVisibility(View.GONE);
+            }).start();
+        }
+        roomPage.setAlpha(0f);
+        roomPage.setVisibility(View.VISIBLE);
+        roomPage.animate().alpha(1f).setDuration(220).withEndAction(() -> {
+            if (roomWebView != null) {
+                roomWebView.requestFocus();
+            }
+        }).start();
+    }
+
+    private void showMainPage() {
+        if (mainPage == null) return;
+        if (roomPage != null && roomPage.getVisibility() == View.VISIBLE) {
+            roomPage.animate().alpha(0f).setDuration(220).withEndAction(() -> {
+                roomPage.setVisibility(View.GONE);
+            }).start();
+        }
+        mainPage.setAlpha(0f);
+        mainPage.setVisibility(View.VISIBLE);
+        mainPage.animate().alpha(1f).setDuration(220).withEndAction(() -> {
+            if (grid != null) grid.requestFocus();
+        }).start();
+    }
+
+    public class RoomBridge {
+        @JavascriptInterface
+        public void launchApp(String pkg) {
+            runOnUiThread(() -> {
+                Intent intent = getPackageManager().getLeanbackLaunchIntentForPackage(pkg);
+                if (intent == null) {
+                    intent = getPackageManager().getLaunchIntentForPackage(pkg);
+                }
+                if (intent != null) {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    try {
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "Impossible d'ouvrir: " + pkg, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, "App non installée: " + pkg, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void switchToDeck() {
+            runOnUiThread(MainActivity.this::showMainPage);
         }
     }
 }

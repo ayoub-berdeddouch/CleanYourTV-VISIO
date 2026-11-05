@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="320dp" android:height="180dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <gradient
+                android:angle="315"
+                android:startColor="#FF222631"
+                android:endColor="#FF13151C" />
+            <stroke
+                android:width="1.5dp"
+                android:color="#33FFFFFF" />
+        </shape>
+    </item>
+    <item
+        android:width="64dp"
+        android:height="64dp"
+        android:gravity="center">
+        <vector
+            android:width="64dp"
+            android:height="64dp"
+            android:viewportWidth="100"
+            android:viewportHeight="100">
+            <!-- 2x2 Rounded Squares Grid -->
+            <path
+                android:strokeColor="#FFE2E8F0"
+                android:strokeWidth="5"
+                android:fillColor="#00000000"
+                android:pathData="M27,20 H39 C42.8,20 46,23.2 46,27 V39 C46,42.8 42.8,46 39,46 H27 C23.2,46 20,42.8 20,39 V27 C20,23.2 23.2,20 27,20 Z" />
+            <path
+                android:strokeColor="#FFE2E8F0"
+                android:strokeWidth="5"
+                android:fillColor="#00000000"
+                android:pathData="M61,20 H73 C76.8,20 80,23.2 80,27 V39 C80,42.8 76.8,46 73,46 H61 C57.2,46 54,42.8 54,39 V27 C54,23.2 57.2,20 61,20 Z" />
+            <path
+                android:strokeColor="#FFE2E8F0"
+                android:strokeWidth="5"
+                android:fillColor="#00000000"
+                android:pathData="M27,54 H39 C42.8,54 46,57.2 46,61 V73 C46,76.8 42.8,80 39,80 H27 C23.2,80 20,76.8 20,73 V61 C20,57.2 23.2,54 27,54 Z" />
+            <path
+                android:strokeColor="#FFE2E8F0"
+                android:strokeWidth="5"
+                android:fillColor="#00000000"
+                android:pathData="M61,54 H73 C76.8,54 80,57.2 80,61 V73 C80,76.8 76.8,80 73,80 H61 C57.2,80 54,76.8 54,73 V61 C54,57.2 57.2,54 61,54 Z" />
+        </vector>
+    </item>
+</layer-list>

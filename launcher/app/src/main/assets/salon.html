@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CleanTV - Salon 3D Zen</title>
+    <!-- Local Offline Three.js Bundled in Assets -->
+    <script src="three.min.js"></script>
+    <style>
+        :root {
+            --accent-gold: #E5A93C;
+            --accent-glow: rgba(229, 169, 60, 0.45);
+            --focus-border: #f59e0b;
+            --glass-bg: rgba(14, 20, 30, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.14);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #06080d;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Outfit', 'Inter', sans-serif;
+            color: var(--text-main);
+        }
+
+        #threeCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: block;
+        }
+
+        /* TV HUD Overlays */
+        .hud-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 56px;
+        }
+
+        /* Top Bar */
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .clock-block {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .greeting-tag {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.75);
+            margin-bottom: 4px;
+        }
+
+        .digital-time {
+            font-size: 64px;
+            font-weight: 300;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            text-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+        }
+
+        .date-line {
+            font-size: 13.5px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.65);
+            margin-top: 6px;
+        }
+
+        .top-right-status {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .glass-pill {
+            pointer-events: auto;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-pill:hover, .glass-pill.focused {
+            background: rgba(245, 158, 11, 0.22) !important;
+            border-color: var(--focus-border) !important;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.45);
+            transform: scale(1.06);
+            color: #ffffff;
+        }
+
+        /* Center-Left Info Card */
+        .room-focus-card {
+            pointer-events: auto;
+            align-self: flex-start;
+            margin-top: auto;
+            margin-bottom: 18px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            background: rgba(10, 14, 22, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 18px;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+            transition: all 0.25s ease;
+        }
+
+        .room-focus-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #e5a93c, #b47818);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 6px 18px rgba(229, 169, 60, 0.35);
+        }
+
+        .room-focus-text h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .room-focus-text p {
+            font-size: 12.5px;
+            color: #94a3b8;
+        }
+
+        /* Bottom Controls Bar */
+        .hud-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .remote-nav-hint {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 12.5px;
+            color: rgba(255, 255, 255, 0.65);
+            font-weight: 500;
+            letter-spacing: 0.04em;
+        }
+
+        .key-badge {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            padding: 3px 8px;
+            border-radius: 6px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 11px;
+        }
+
+        .mode-toggle-group {
+            pointer-events: auto;
+            display: flex;
+            background: rgba(15, 20, 30, 0.75);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 4px;
+            border-radius: 30px;
+            gap: 4px;
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn:hover, .mode-btn.focused {
+            color: #fff;
+            background: rgba(245, 158, 11, 0.35) !important;
+            transform: scale(1.06);
+        }
+
+        .mode-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        /* Interactive Hotspots */
+        .hotspot {
+            position: absolute;
+            z-index: 15;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .hotspot-dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(229, 169, 60, 0.25);
+            border: 2px solid var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 17px;
+            box-shadow: 0 0 20px var(--accent-glow);
+            transition: all 0.25s ease;
+            animation: pulseGlow 2.4s infinite ease-in-out;
+        }
+
+        .hotspot-label {
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            white-space: nowrap;
+            background: rgba(10, 14, 22, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #f1f5f9;
+            backdrop-filter: blur(12px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .hotspot:hover, .hotspot.focused {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .hotspot:hover .hotspot-dot, .hotspot.focused .hotspot-dot {
+            border-color: var(--focus-border);
+            background: rgba(245, 158, 11, 0.45);
+            box-shadow: 0 0 28px rgba(245, 158, 11, 0.85);
+        }
+
+        .hotspot:hover .hotspot-label, .hotspot.focused .hotspot-label {
+            opacity: 1;
+            transform: translateX(-50%) translateY(4px);
+            border-color: var(--focus-border);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 16px var(--accent-glow); }
+            50% { transform: scale(1.1); box-shadow: 0 0 26px rgba(229, 169, 60, 0.75); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="threeCanvas"></canvas>
+
+    <!-- Hotspots -->
+    <div class="hotspot" id="spotScreen" style="left: 45%; top: 40%;" onclick="focusAndTrigger('spotScreen')">
+        <div class="hotspot-dot">📺</div>
+        <div class="hotspot-label">Écran TV · Ouvrir Stremio</div>
+    </div>
+
+    <div class="hotspot" id="spotAudio" style="left: 36%; top: 62%;" onclick="focusAndTrigger('spotAudio')">
+        <div class="hotspot-dot">🎵</div>
+        <div class="hotspot-label">Système Audio · Spotify</div>
+    </div>
+
+    <div class="hotspot" id="spotWindow" style="left: 78%; top: 38%;" onclick="focusAndTrigger('spotWindow')">
+        <div class="hotspot-dot">☀️</div>
+        <div class="hotspot-label">Fenêtre Panoramique · Météo Benguerir</div>
+    </div>
+
+    <div class="hotspot" id="spotLamp" style="left: 20%; top: 38%;" onclick="focusAndTrigger('spotLamp')">
+        <div class="hotspot-dot">💡</div>
+        <div class="hotspot-label">Lampe d'Ambiance · Éclairage Zen</div>
+    </div>
+
+    <div class="hud-layer">
+        <!-- Top Row -->
+        <div class="hud-top">
+            <div class="clock-block">
+                <span class="greeting-tag" id="ambientGreeting">BONNE NUIT</span>
+                <div class="digital-time" id="ambientClock">--:--</div>
+                <div class="date-line" id="ambientDate">VISIO TV · SALON 3D</div>
+            </div>
+
+            <div class="top-right-status">
+                <div class="glass-pill" id="pillWeather" onclick="focusAndTrigger('pillWeather')">
+                    <span>☀️ 24°C</span>
+                    <span style="opacity: 0.6;">· Benguerir</span>
+                </div>
+                <div class="glass-pill" id="pillLamp" onclick="focusAndTrigger('pillLamp')">
+                    <span id="lampIcon">💡</span>
+                    <span id="lampStateText">Lumière : Chaude</span>
+                </div>
+                <div class="glass-pill" id="pillDeck" style="border-color: var(--accent-gold); color: #fff;" onclick="focusAndTrigger('pillDeck')">
+                    <span>🏠 Accueil Deck</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Focus Card -->
+        <div class="room-focus-card" id="zenCard">
+            <div class="room-focus-icon" id="cardIcon">🛋️</div>
+            <div class="room-focus-text">
+                <h4 id="zenTitle">Salon 3D Minimaliste</h4>
+                <p id="zenSubtitle">Utilisez la télécommande ◄ ► ▲ ▼ ou appuyez sur OK pour interagir</p>
+            </div>
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="hud-bottom">
+            <div class="remote-nav-hint">
+                <span><span class="key-badge">◄ / ►</span> Déplacer</span>
+                <span><span class="key-badge">▲ / ▼</span> Changer de niveau</span>
+                <span><span class="key-badge">OK</span> Activer</span>
+                <span><span class="key-badge">Back</span> Accueil Deck</span>
+            </div>
+
+            <div class="mode-toggle-group">
+                <button class="mode-btn" id="btnModeDay" onclick="focusAndTrigger('btnModeDay')">☀️ Jour</button>
+                <button class="mode-btn" id="btnModeSunset" onclick="focusAndTrigger('btnModeSunset')">🌅 Coucher</button>
+                <button class="mode-btn active" id="btnModeNight" onclick="focusAndTrigger('btnModeNight')">🌙 Nuit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scene, camera, renderer;
+        let roomGroup, lampLight, sunLight, ambientLight, tvScreenMesh, plantGroup;
+        let isNight = true;
+        let lampOn = true;
+        let targetRotationY = 0;
+        let currentRotationY = 0;
+        let lightingModes = ['day', 'sunset', 'night'];
+        let currentLightingIdx = 2; // night
+
+        // Navigation elements for TV Remote
+        // Rows:
+        // Row 0 (Top): [ pillWeather, pillLamp, pillDeck ]
+        // Row 1 (Room Objects): [ spotLamp, spotScreen, spotAudio, spotWindow ]
+        // Row 2 (Bottom Modes): [ btnModeDay, btnModeSunset, btnModeNight ]
+        const navGrid = [
+            ['pillWeather', 'pillLamp', 'pillDeck'],
+            ['spotLamp', 'spotScreen', 'spotAudio', 'spotWindow'],
+            ['btnModeDay', 'btnModeSunset', 'btnModeNight']
+        ];
+        let currentRow = 1; // Start in the room
+        let currentCol = 1; // Start focused on TV screen!
+
+        function getFocusedId() {
+            return navGrid[currentRow][currentCol];
+        }
+
+        function setFocusByCoords(row, col) {
+            currentRow = Math.max(0, Math.min(navGrid.length - 1, row));
+            const rowArr = navGrid[currentRow];
+            currentCol = Math.max(0, Math.min(rowArr.length - 1, col));
+
+            // Clear all focus classes
+            document.querySelectorAll('.focused').forEach(el => el.classList.remove('focused'));
+
+            const targetId = getFocusedId();
+            const el = document.getElementById(targetId);
+            if (el) {
+                el.classList.add('focused');
+            }
+
+            // Update 3D camera pan & HUD card text
+            updateHudAndCameraFor(targetId);
+        }
+
+        function updateHudAndCameraFor(targetId) {
+            const card = document.getElementById('zenCard');
+            const icon = document.getElementById('cardIcon');
+            const title = document.getElementById('zenTitle');
+            const sub = document.getElementById('zenSubtitle');
+
+            card.style.animation = 'none';
+            void card.offsetWidth;
+            card.style.animation = 'fadeIn 0.25s ease';
+
+            if (targetId === 'spotScreen') {
+                targetRotationY = -0.12;
+                icon.textContent = "📺";
+                title.textContent = "Écran TV du Salon";
+                sub.textContent = "Appuyez sur [OK] pour ouvrir Stremio / Vidéos";
+            } else if (targetId === 'spotAudio') {
+                targetRotationY = -0.18;
+                icon.textContent = "🎵";
+                title.textContent = "Système Audio Hi-Fi";
+                sub.textContent = "Appuyez sur [OK] pour lancer Spotify / Musique";
+            } else if (targetId === 'spotWindow') {
+                targetRotationY = 0.22;
+                icon.textContent = "☀️";
+                title.textContent = "Fenêtre Panoramique";
+                sub.textContent = "Benguerir · 24°C · Ciel dégagé · Coucher 18h42";
+            } else if (targetId === 'spotLamp') {
+                targetRotationY = -0.32;
+                icon.textContent = "💡";
+                title.textContent = "Lampe d'Ambiance Zen";
+                sub.textContent = lampOn ? "Lumière allumée · Appuyez sur [OK] pour éteindre" : "Lumière éteinte · Appuyez sur [OK] pour allumer";
+            } else if (targetId === 'pillDeck') {
+                targetRotationY = 0;
+                icon.textContent = "🏠";
+                title.textContent = "Retour à l'Accueil";
+                sub.textContent = "Appuyez sur [OK] ou [Retour] pour revenir au Deck";
+            } else if (targetId === 'pillLamp') {
+                targetRotationY = -0.2;
+                icon.textContent = "💡";
+                title.textContent = "Interrupteur Ambiance";
+                sub.textContent = "Appuyez sur [OK] pour basculer la lumière du salon";
+            } else if (targetId === 'pillWeather') {
+                targetRotationY = 0.15;
+                icon.textContent = "☀️";
+                title.textContent = "Météo Benguerir";
+                sub.textContent = "24°C · Humidité 42% · Vent 12 km/h";
+            } else if (targetId === 'btnModeDay') {
+                targetRotationY = 0.1;
+                icon.textContent = "☀️";
+                title.textContent = "Ambiance Jour";
+                sub.textContent = "Lumière du soleil vive et naturelle";
+            } else if (targetId === 'btnModeSunset') {
+                targetRotationY = 0.0;
+                icon.textContent = "🌅";
+                title.textContent = "Ambiance Coucher de Soleil";
+                sub.textContent = "Tons chauds dorés et ombres douces";
+            } else if (targetId === 'btnModeNight') {
+                targetRotationY = -0.1;
+                icon.textContent = "🌙";
+                title.textContent = "Ambiance Nuit Zen";
+                sub.textContent = "Atmosphère feutrée cinéma et éclairage tamisé";
+            }
+        }
+
+        function activateTarget(targetId) {
+            if (targetId === 'spotScreen') {
+                if (tvScreenMesh) tvScreenMesh.material.color.setHex(0x3866aa);
+                setTimeout(() => {
+                    if (window.AndroidBridge && window.AndroidBridge.launchApp) {
+                        window.AndroidBridge.launchApp("com.stremio.one");
+                    }
+                }, 200);
+            } else if (targetId === 'spotAudio') {
+                if (window.AndroidBridge && window.AndroidBridge.launchApp) {
+                    window.AndroidBridge.launchApp("com.spotify.music");
+                }
+            } else if (targetId === 'spotLamp' || targetId === 'pillLamp') {
+                toggleLamp();
+                updateHudAndCameraFor(targetId);
+            } else if (targetId === 'spotWindow' || targetId === 'pillWeather') {
+                const sub = document.getElementById('zenSubtitle');
+                if (sub) sub.textContent = "Benguerir (بن جرير) · Température: 24°C · Excellente visibilité";
+            } else if (targetId === 'pillDeck') {
+                returnToDeck();
+            } else if (targetId === 'btnModeDay') {
+                setLighting('day');
+            } else if (targetId === 'btnModeSunset') {
+                setLighting('sunset');
+            } else if (targetId === 'btnModeNight') {
+                setLighting('night');
+            }
+        }
+
+        function focusAndTrigger(targetId) {
+            // Find coordinates in navGrid
+            for (let r = 0; r < navGrid.length; r++) {
+                const c = navGrid[r].indexOf(targetId);
+                if (c !== -1) {
+                    setFocusByCoords(r, c);
+                    activateTarget(targetId);
+                    return;
+                }
+            }
+            activateTarget(targetId);
+        }
+
+        function returnToDeck() {
+            if (window.AndroidBridge && window.AndroidBridge.switchToDeck) {
+                window.AndroidBridge.switchToDeck();
+            }
+        }
+
+        function toggleLamp() {
+            lampOn = !lampOn;
+            if (lampLight) lampLight.intensity = lampOn ? 2.8 : 0.05;
+            const icon = document.getElementById('lampIcon');
+            const txt = document.getElementById('lampStateText');
+            if (icon) icon.textContent = lampOn ? "💡" : "🌑";
+            if (txt) txt.textContent = lampOn ? "Lumière : Chaude" : "Lumière : Éteinte";
+        }
+
+        function setLighting(mode) {
+            const btns = [
+                document.getElementById('btnModeDay'),
+                document.getElementById('btnModeSunset'),
+                document.getElementById('btnModeNight')
+            ];
+            btns.forEach(b => b && b.classList.remove('active'));
+            const greeting = document.getElementById('ambientGreeting');
+
+            if (mode === 'day') {
+                if (btns[0]) btns[0].classList.add('active');
+                scene.background.setHex(0x1a2436);
+                ambientLight.color.setHex(0x8fa2c4);
+                ambientLight.intensity = 1.3;
+                sunLight.color.setHex(0xfff7e6);
+                sunLight.intensity = 2.0;
+                sunLight.position.set(10, 15, 6);
+                lampLight.intensity = 0.5;
+                if (greeting) greeting.textContent = "BONJOUR";
+            } else if (mode === 'sunset') {
+                if (btns[1]) btns[1].classList.add('active');
+                scene.background.setHex(0x1a1218);
+                ambientLight.color.setHex(0x6b4450);
+                ambientLight.intensity = 1.0;
+                sunLight.color.setHex(0xff7744);
+                sunLight.intensity = 2.4;
+                sunLight.position.set(16, 6, 4);
+                lampLight.intensity = 1.8;
+                if (greeting) greeting.textContent = "BONSOIR";
+            } else {
+                if (btns[2]) btns[2].classList.add('active');
+                scene.background.setHex(0x06080d);
+                ambientLight.color.setHex(0x182030);
+                ambientLight.intensity = 0.8;
+                sunLight.color.setHex(0x334466);
+                sunLight.intensity = 0.4;
+                lampLight.intensity = lampOn ? 2.8 : 0.1;
+                if (greeting) greeting.textContent = "BONNE NUIT";
+            }
+        }
+
+        // Bridge method called from Android
+        window.handleDpadKey = function(keyName) {
+            if (keyName === 'LEFT') {
+                setFocusByCoords(currentRow, currentCol - 1);
+            } else if (keyName === 'RIGHT') {
+                setFocusByCoords(currentRow, currentCol + 1);
+            } else if (keyName === 'UP') {
+                setFocusByCoords(currentRow - 1, currentCol);
+            } else if (keyName === 'DOWN') {
+                setFocusByCoords(currentRow + 1, currentCol);
+            } else if (keyName === 'OK' || keyName === 'ENTER') {
+                activateTarget(getFocusedId());
+            } else if (keyName === 'BACK') {
+                returnToDeck();
+            }
+        };
+
+        // Keydown listener for remote control
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                setFocusByCoords(currentRow, currentCol - 1);
+                e.preventDefault();
+            } else if (e.key === 'ArrowRight') {
+                setFocusByCoords(currentRow, currentCol + 1);
+                e.preventDefault();
+            } else if (e.key === 'ArrowUp') {
+                setFocusByCoords(currentRow - 1, currentCol);
+                e.preventDefault();
+            } else if (e.key === 'ArrowDown') {
+                setFocusByCoords(currentRow + 1, currentCol);
+                e.preventDefault();
+            } else if (e.key === 'Enter') {
+                activateTarget(getFocusedId());
+                e.preventDefault();
+            } else if (e.key === 'Escape' || e.key === 'Backspace') {
+                returnToDeck();
+                e.preventDefault();
+            }
+        });
+
+        function init3DRoom() {
+            const canvas = document.getElementById('threeCanvas');
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x06080d);
+
+            const aspect = width / height;
+            camera = new THREE.PerspectiveCamera(38, aspect, 0.1, 100);
+            camera.position.set(13, 10, 15);
+            camera.lookAt(0, 1.2, 0);
+
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            ambientLight = new THREE.AmbientLight(0x283045, 0.9);
+            scene.add(ambientLight);
+
+            sunLight = new THREE.DirectionalLight(0xfff3db, 1.4);
+            sunLight.position.set(14, 16, 8);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 1024;
+            sunLight.shadow.mapSize.height = 1024;
+            sunLight.shadow.bias = -0.001;
+            scene.add(sunLight);
+
+            lampLight = new THREE.PointLight(0xffaa44, 2.8, 10, 1.8);
+            lampLight.position.set(-3.2, 3.8, 0.5);
+            lampLight.castShadow = true;
+            scene.add(lampLight);
+
+            const tvGlow = new THREE.PointLight(0x4488ff, 1.2, 8, 2);
+            tvGlow.position.set(0.5, 2.4, -3.2);
+            scene.add(tvGlow);
+
+            roomGroup = new THREE.Group();
+            scene.add(roomGroup);
+
+            buildMinimalistRoom();
+            setLighting('night');
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        function buildMinimalistRoom() {
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x1b1f2b, roughness: 0.6, metalness: 0.1 });
+            const wallMat = new THREE.MeshStandardMaterial({ color: 0x10141f, roughness: 0.85 });
+            const woodMat = new THREE.MeshStandardMaterial({ color: 0x3d271d, roughness: 0.5 });
+            const sofaFabric = new THREE.MeshStandardMaterial({ color: 0x242d3d, roughness: 0.9 });
+            const cushionMat = new THREE.MeshStandardMaterial({ color: 0xd49b3d, roughness: 0.8 });
+            const tvMat = new THREE.MeshStandardMaterial({ color: 0x05070a, roughness: 0.2, metalness: 0.8 });
+            const screenGlowMat = new THREE.MeshBasicMaterial({ color: 0x1a2638 });
+
+            // Floor
+            const floor = new THREE.Mesh(new THREE.BoxGeometry(10, 0.4, 10), floorMat);
+            floor.position.y = -0.2;
+            floor.receiveShadow = true;
+            roomGroup.add(floor);
+
+            // Rug
+            const rug = new THREE.Mesh(new THREE.BoxGeometry(6.2, 0.04, 5.2), new THREE.MeshStandardMaterial({ color: 0x171c26, roughness: 0.95 }));
+            rug.position.set(0.2, 0.02, 0.4);
+            rug.receiveShadow = true;
+            roomGroup.add(rug);
+
+            // Back & Left Walls
+            const backWall = new THREE.Mesh(new THREE.BoxGeometry(10, 6, 0.4), wallMat);
+            backWall.position.set(0, 3, -5.2);
+            backWall.receiveShadow = true;
+            roomGroup.add(backWall);
+
+            const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.4, 6, 10), wallMat);
+            leftWall.position.set(-5.2, 3, 0);
+            leftWall.receiveShadow = true;
+            roomGroup.add(leftWall);
+
+            // Panoramic Window
+            const windowFrame = new THREE.Mesh(new THREE.BoxGeometry(3.6, 4.4, 0.2), new THREE.MeshStandardMaterial({ color: 0x0a0d14, metalness: 0.5 }));
+            windowFrame.position.set(2.4, 3.2, -5.05);
+            roomGroup.add(windowFrame);
+
+            const glass = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 4.0), new THREE.MeshBasicMaterial({ color: 0x0c1424, transparent: true, opacity: 0.85 }));
+            glass.position.set(2.4, 3.2, -4.94);
+            roomGroup.add(glass);
+
+            // Floating Media Console
+            const mediaConsole = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.65, 1.2), woodMat);
+            mediaConsole.position.set(-1.8, 0.45, -4.2);
+            mediaConsole.castShadow = true;
+            mediaConsole.receiveShadow = true;
+            roomGroup.add(mediaConsole);
+
+            // Thin OLED TV Screen
+            const tvFrameMesh = new THREE.Mesh(new THREE.BoxGeometry(3.4, 2.0, 0.08), tvMat);
+            tvFrameMesh.position.set(-1.8, 2.5, -4.85);
+            tvFrameMesh.castShadow = true;
+            roomGroup.add(tvFrameMesh);
+
+            tvScreenMesh = new THREE.Mesh(new THREE.PlaneGeometry(3.25, 1.85), screenGlowMat);
+            tvScreenMesh.position.set(-1.8, 2.5, -4.8);
+            roomGroup.add(tvScreenMesh);
+
+            // Soundbar
+            const soundbar = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.15, 0.25), new THREE.MeshStandardMaterial({ color: 0x080a0f, metalness: 0.7 }));
+            soundbar.position.set(-1.8, 0.85, -4.1);
+            soundbar.castShadow = true;
+            roomGroup.add(soundbar);
+
+            // Sofa / Lounge
+            const sofaBase = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.45, 2.0), sofaFabric);
+            sofaBase.position.set(-0.2, 0.4, 0.8);
+            sofaBase.castShadow = true;
+            sofaBase.receiveShadow = true;
+            roomGroup.add(sofaBase);
+
+            const sofaBackrest = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.8, 0.45), sofaFabric);
+            sofaBackrest.position.set(-0.2, 0.8, 1.6);
+            sofaBackrest.castShadow = true;
+            roomGroup.add(sofaBackrest);
+
+            const cushion = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.45, 0.2), cushionMat);
+            cushion.position.set(-1.2, 0.8, 1.35);
+            cushion.rotation.x = -0.2;
+            cushion.castShadow = true;
+            roomGroup.add(cushion);
+
+            // Coffee Table
+            const table = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.0, 0.08, 32), new THREE.MeshStandardMaterial({ color: 0x2b1c15, roughness: 0.4 }));
+            table.position.set(-0.2, 0.45, -1.0);
+            table.castShadow = true;
+            table.receiveShadow = true;
+            roomGroup.add(table);
+
+            const leg1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.45, 12), new THREE.MeshStandardMaterial({ color: 0x0f1118, metalness: 0.9 }));
+            leg1.position.set(-0.2, 0.225, -1.0);
+            roomGroup.add(leg1);
+
+            // Architectural Lamp
+            const lampGroup = new THREE.Group();
+            lampGroup.position.set(-3.6, 0, 0.4);
+
+            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 3.6, 16), new THREE.MeshStandardMaterial({ color: 0x0a0d14, metalness: 0.9 }));
+            pole.position.y = 1.8;
+            lampGroup.add(pole);
+
+            const shade = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.65, 32, 1, true), new THREE.MeshStandardMaterial({ color: 0xf5eedb, roughness: 0.3, side: THREE.DoubleSide }));
+            shade.position.y = 3.6;
+            shade.rotation.x = Math.PI;
+            lampGroup.add(shade);
+            roomGroup.add(lampGroup);
+
+            // Plant
+            plantGroup = new THREE.Group();
+            plantGroup.position.set(3.4, 0, -2.6);
+
+            const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.35, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x232733, roughness: 0.7 }));
+            pot.position.y = 0.4;
+            pot.castShadow = true;
+            plantGroup.add(pot);
+
+            const leafMat = new THREE.MeshStandardMaterial({ color: 0x1d3c28, roughness: 0.6 });
+            for (let i = 0; i < 5; i++) {
+                const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.8, 0.02), leafMat);
+                leaf.position.set(Math.sin(i * 1.25) * 0.25, 0.9 + i * 0.12, Math.cos(i * 1.25) * 0.25);
+                leaf.rotation.set(Math.sin(i) * 0.4, i * 1.3, Math.cos(i) * 0.4);
+                leaf.castShadow = true;
+                plantGroup.add(leaf);
+            }
+            roomGroup.add(plantGroup);
+        }
+
+        function onWindowResize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            if (camera && renderer) {
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+            }
+        }
+
+        let clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            currentRotationY += (targetRotationY - currentRotationY) * 0.08;
+            if (roomGroup) roomGroup.rotation.y = currentRotationY;
+            if (plantGroup) plantGroup.rotation.z = Math.sin(elapsedTime * 1.5) * 0.02;
+
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const el = document.getElementById('ambientClock');
+            if (el) el.textContent = `${hours}:${minutes}`;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            init3DRoom();
+            updateClock();
+            setInterval(updateClock, 1000);
+            setFocusByCoords(1, 1); // Focus TV Screen by default
+        });
+    </script>
+</body>
+</html>

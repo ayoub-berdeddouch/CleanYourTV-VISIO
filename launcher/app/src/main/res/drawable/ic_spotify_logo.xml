@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Spotify Green Circle -->
+    <path
+        android:fillColor="#FF1ED760"
+        android:pathData="M24,4 C12.95,4 4,12.95 4,24 C4,35.05 12.95,44 24,44 C35.05,44 44,35.05 44,24 C44,12.95 35.05,4 24,4 Z" />
+    <!-- Three black waves -->
+    <path
+        android:fillColor="#FF121212"
+        android:pathData="M33.5,32.7 C33.1,33.3 32.3,33.5 31.7,33.1 C26.3,29.8 19.5,29.1 11.5,30.9 C10.8,31.1 10.1,30.6 9.9,29.9 C9.7,29.2 10.2,28.5 10.9,28.3 C19.6,26.3 27.2,27.1 33.3,30.9 C33.9,31.2 34.1,32 33.5,32.7 Z" />
+    <path
+        android:fillColor="#FF121212"
+        android:pathData="M36.4,26.5 C35.8,27.4 34.6,27.7 33.7,27.1 C27.6,23.4 18.2,22.3 11,24.5 C10,24.8 8.9,24.2 8.6,23.2 C8.3,22.2 8.9,21.1 9.9,20.8 C18.2,18.3 28.5,19.5 35.6,23.8 C36.5,24.3 36.8,25.5 36.4,26.5 Z" />
+    <path
+        android:fillColor="#FF121212"
+        android:pathData="M36.6,20.2 C29.2,15.8 17,15.4 10,17.5 C8.8,17.9 7.5,17.2 7.1,16 C6.7,14.8 7.4,13.5 8.6,13.1 C16.8,10.6 30.2,11.1 38.7,16.2 C39.8,16.8 40.1,18.3 39.5,19.4 C38.9,20.4 37.6,20.7 36.6,20.2 Z" />
+</vector>

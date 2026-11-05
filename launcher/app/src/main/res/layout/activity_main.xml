@@ -94,6 +94,304 @@
             android:letterSpacing="0.12" />
     </LinearLayout>
 
+    <!-- Middle Shelf: Football Highlights (Left) | System Panel (Center) | Weather & Spotify (Right) -->
+    <!-- Hidden to provide a clean, uncluttered, minimalist Home view (Option 2) -->
+    <LinearLayout
+        android:id="@+id/footballDeck"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:layout_marginStart="56dp"
+        android:layout_marginEnd="56dp"
+        android:layout_marginTop="152dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:focusable="false"
+        android:visibility="gone"
+        android:importantForAccessibility="no">
+
+        <!-- Football Highlights & Actualités Card (Left Side) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1.25"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_match_card"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
+
+            <!-- FC Barcelona Highlight -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/crest_barca"
+                    android:contentDescription="@null" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="FC BARCELONA · ACTUALITÉ &amp; HIGHLIGHTS"
+                        android:textColor="#E5A93C"
+                        android:textSize="10sp"
+                        android:fontFamily="@string/font_medium"
+                        android:letterSpacing="0.08" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:text="Victoire 5-1 contre Séville · Prochain match: Clásico ce Dimanche (20:00)"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="11sp"
+                        android:fontFamily="@string/font_regular" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Subtle divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:background="#22FFFFFF" />
+
+            <!-- Morocco National Team Highlight -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/crest_morocco"
+                    android:contentDescription="@null" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="LIONS DE L'ATLAS (MAROC) · ACTUALITÉ"
+                        android:textColor="#E5A93C"
+                        android:textSize="10sp"
+                        android:fontFamily="@string/font_medium"
+                        android:letterSpacing="0.08" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:text="Éliminatoires CAN: Maroc 4-0 Centrafrique · Prochain match: 14 Nov (20:00)"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="11sp"
+                        android:fontFamily="@string/font_regular" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- TV System Hardware Monitor Panel (Center) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1.05"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:orientation="vertical"
+            android:background="@drawable/bg_system_card"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚡"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="SYSTÈME VISIO TV · EN DIRECT"
+                    android:textColor="#38BDF8"
+                    android:textSize="10sp"
+                    android:fontFamily="@string/font_medium"
+                    android:letterSpacing="0.08" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="● 60 FPS"
+                    android:textColor="#4ADE80"
+                    android:textSize="9sp"
+                    android:fontFamily="@string/font_medium"
+                    android:letterSpacing="0.06" />
+            </LinearLayout>
+
+            <!-- Dynamic Live Stats (CPU %, Memory, Storage) updated every 2s -->
+            <TextView
+                android:id="@+id/stats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="CPU 14%  ·  Mémoire 679 / 907 Mo  ·  Stockage 4.2 Go libre"
+                android:textColor="#FFFFFFFF"
+                android:textSize="11sp"
+                android:fontFamily="@string/font_regular" />
+
+            <!-- Hardware Spec & Storage Sub-indicators -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quad-Core Cortex-A53 · 2 GB RAM · 16 GB Flash"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="10sp"
+                    android:fontFamily="@string/font_regular" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Right Side: Weather (above) and Spotify (below) -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:orientation="vertical">
+
+            <!-- Weather Widget (Above Spotify) -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_deck_card"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="☀️"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="24°C · Benguerir (بن جرير)"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="12sp"
+                        android:fontFamily="@string/font_medium" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Max 27° · Min 16° · Ciel Dégagé"
+                        android:textColor="#99FFFFFF"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Spotify Player Pill (Below Weather) -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_music_pill"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_spotify_logo"
+                    android:contentDescription="@null" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SPOTIFY · EN LECTURE"
+                        android:textColor="#FF1ED760"
+                        android:textSize="9sp"
+                        android:fontFamily="@string/font_medium"
+                        android:letterSpacing="0.08" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Blinding Lights - The Weeknd"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="12sp"
+                        android:fontFamily="@string/font_regular" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="⏮   ▶   ⏭"
+                    android:textColor="#E6FFFFFF"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
     <!-- Cinematic top shelf: darkens the edge behind the shelf and the lower half, so the text and the
          dock stay readable over the artwork. -->
     <View
@@ -147,6 +445,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/mainPage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -190,7 +489,7 @@
                     android:textAllCaps="true" />
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:baselineAligned="true">
@@ -202,7 +501,7 @@
                         android:format12Hour="h:mm"
                         android:format24Hour="HH:mm"
                         android:textColor="#FFFFFFFF"
-                        android:textSize="52sp"
+                        android:textSize="54sp"
                         android:fontFamily="@string/font_light"
                         android:letterSpacing="-0.04"
                         android:includeFontPadding="false" />
@@ -221,78 +520,36 @@
                         android:fontFamily="@string/font_medium"
                         android:letterSpacing="0.08"
                         android:textAllCaps="true" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="26dp"
-                        android:layout_gravity="bottom"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="8dp"
-                        android:background="#33FFFFFF" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:layout_marginBottom="9dp"
-                        android:orientation="vertical">
-
-                        <!-- Shamsi date ("27 Mehr 1405"), shown when shamsi_date is on. -->
-                        <TextView
-                            android:id="@+id/shamsiDate"
-                            android:gravity="left"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:singleLine="true"
-                            android:ellipsize="end"
-                            android:textColor="#E6FFFFFF"
-                            android:textSize="17sp"
-                            android:fontFamily="@string/font_regular"
-                            android:letterSpacing="0.02"
-                            android:includeFontPadding="false"
-                            android:visibility="gone" />
-
-                        <TextClock
-                            android:id="@+id/date"
-                            android:gravity="left"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:singleLine="@bool/date_single_line"
-                            android:maxLines="2"
-                            android:lineSpacingExtra="6dp"
-                            android:ellipsize="end"
-                            android:format12Hour="@string/date_format_home"
-                            android:format24Hour="@string/date_format_home"
-                            android:textColor="#A6FFFFFF"
-                            android:textSize="14sp"
-                            android:fontFamily="@string/font_regular"
-                            android:letterSpacing="0.14"
-                            android:textAllCaps="true" />
-                    </LinearLayout>
                 </LinearLayout>
 
-            </LinearLayout>
+                <!-- Shamsi date, shown only when shamsi_date is on -->
+                <TextView
+                    android:id="@+id/shamsiDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textColor="#E6FFFFFF"
+                    android:textSize="14sp"
+                    android:fontFamily="@string/font_regular"
+                    android:visibility="gone" />
 
-            <!-- Shown only when show_stats is on. Outside leftBlock, so the top buttons stay level with the clock
-                 row; gone, it takes no space. -->
-            <TextView
-                android:id="@+id/stats"
-                android:layout_width="wrap_content"
-                android:layout_below="@id/leftBlock"
-                android:layout_alignStart="@id/leftBlock"
-                android:gravity="left"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:textColor="#D9FFFFFF"
-                android:textSize="14sp"
-                android:fontFamily="@string/font_medium"
-                android:letterSpacing="0.04"
-                android:focusable="false"
-                android:visibility="gone" />
+                <!-- Date stacked directly below the time -->
+                <TextClock
+                    android:id="@+id/date"
+                    android:gravity="left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:singleLine="true"
+                    android:format12Hour="@string/date_format_home"
+                    android:format24Hour="@string/date_format_home"
+                    android:textColor="#A6FFFFFF"
+                    android:textSize="14sp"
+                    android:fontFamily="@string/font_regular"
+                    android:letterSpacing="0.12"
+                    android:textAllCaps="true" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/topButtons"
@@ -304,6 +561,13 @@
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/btnSalon3d"
+                    style="@style/TopButton"
+                    android:text="@string/room_3d"
+                    android:drawableStart="@drawable/ic_room3d"
+                    android:nextFocusDown="@+id/grid" />
 
                 <TextView
                     android:id="@+id/btnInputs"
@@ -376,4 +640,18 @@
         android:layout_height="10dp"
         android:alpha="0"
         android:importantForAccessibility="no" />
+
+    <!-- 3D Room Page: Integrated Minimalist 3D Page (Option 2) -->
+    <FrameLayout
+        android:id="@+id/roomPage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <WebView
+            android:id="@+id/roomWebView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#06080D" />
+    </FrameLayout>
 </FrameLayout>

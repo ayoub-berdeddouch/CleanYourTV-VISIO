@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <!-- Stremio Purple Hexagon -->
+    <path
+        android:fillColor="#FF7C3AED"
+        android:pathData="M50,14 L84,33.5 L84,66.5 L50,86 L16,66.5 L16,33.5 Z" />
+    <!-- White Play Triangle -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M42,34 L68,50 L42,66 Z" />
+</vector>

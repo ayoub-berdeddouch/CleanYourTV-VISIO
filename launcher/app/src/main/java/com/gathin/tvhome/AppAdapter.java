@@ -221,7 +221,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.animations = cfg.animations;
         this.advancedEffects = cfg.animations && cfg.advancedEffects;
         this.showHomeSettings = cfg.showHomeSettingsShortcut;
-        this.showLibrary = cfg.appLibrary;
+        this.showLibrary = cfg.appLibrary && !favourites.contains("com.gathin.tvhome.allapps");
         this.reducedMotion = cfg.reducedMotion;
         this.focusOvershoot = cfg.focusOvershoot;
         this.rowsBelowDock = cfg.rowsBelowDock;
@@ -278,8 +278,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (card != null && !card.component.equals(component)) continue;   // the card stands in for this tile
             // Same cleaner as the card prompt: an app label with a bidi override or line separator must not
             // redraw the tile name as something else (#117).
-            String label = card != null ? card.label : Cards.cleanLabel(
-                    appLabels.containsKey(pkg) ? appLabels.get(pkg) : String.valueOf(ri.loadLabel(pm)), pkg);
+            String label = appLabels.containsKey(pkg) ? appLabels.get(pkg) : (card != null ? card.label : Cards.cleanLabel(String.valueOf(ri.loadLabel(pm)), pkg));
+            String caption = appLabels.containsKey(pkg) ? null : (card != null ? card.caption : null);
             if (!seen.add(pkg + '\n' + label)) continue;
             Drawable banner = bundledBanner(appBanners.get(pkg));
             if (banner == null) banner = loadBanner(pm, ri);
@@ -287,10 +287,16 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             // banner skips loading and decoding it.
             Drawable icon = banner == null ? ri.loadIcon(pm) : null;
             if (card != null) {
-                fresh.add(new Entry(Entry.CARD, label, component, banner, icon, card.caption, card.accent));
+                fresh.add(new Entry(Entry.CARD, label, component, banner, icon, caption, card.accent));
             } else {
                 fresh.add(new Entry(label, component, banner, icon));
             }
+        }
+        if (favourites.contains("com.gathin.tvhome.allapps") || appBanners.containsKey("com.gathin.tvhome.allapps")) {
+            String pkg = "com.gathin.tvhome.allapps";
+            String label = appLabels.containsKey(pkg) ? appLabels.get(pkg) : "Toutes les apps";
+            Drawable banner = bundledBanner(appBanners.containsKey(pkg) ? appBanners.get(pkg) : "banner_allapps");
+            fresh.add(new Entry(label, new ComponentName(pkg, "AllAppsActivity"), banner, null));
         }
         Collections.sort(fresh, (a, b) -> {
             // The owner's own order first; tiles it does not know (new installs) follow by the rule below.
@@ -307,6 +313,9 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (ca != cb) return ca ? -1 : 1;
             return a.label.compareToIgnoreCase(b.label);
         });
+        if (rowsBelowDock > 0 && fresh.size() > dockSize * (1 + rowsBelowDock)) {
+            fresh = new ArrayList<>(fresh.subList(0, dockSize * (1 + rowsBelowDock)));
+        }
         // Retain the optional Default-home tile until dependent tile-ordering work is merged.
         if (showHomeSettings
                 && pm.resolveActivity(new Intent(Settings.ACTION_HOME_SETTINGS), 0) != null) {
@@ -469,6 +478,10 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     /** Opens the tile's activity by explicit component, with no extras: a card can name nothing else. */
     private void launch(Entry e) {
+        if ("com.gathin.tvhome.allapps".equals(e.pkg)) {
+            listener.onLibraryRequested();
+            return;
+        }
         if (e.kind == Entry.HOME_SETTINGS) {
             ctx.startActivity(new Intent(ctx, HomeSettingsActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -619,7 +632,14 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     int ambientColorAt(int position) {
         if (position < 0 || position >= items.size()) return 0xFF444444;
         Entry e = items.get(position);
-        if (e.ambient == 0) e.ambient = vividColor(e.banner != null ? e.banner : e.icon);
+        if (e.ambient != 0) return e.ambient;
+        if ("com.stremio.one".equals(e.pkg)) return e.ambient = 0xFF7C3AED;
+        if ("com.google.android.youtube.tv".equals(e.pkg)) return e.ambient = 0xFFEF4444;
+        if ("ma.snrt.forja.android.app".equals(e.pkg)) return e.ambient = 0xFFFF2A6D;
+        if ("com.mediatek.wwtv.mediaplayer".equals(e.pkg)) return e.ambient = 0xFF3B82F6;
+        if ("com.majnioui.tv.prayer".equals(e.pkg) || "io.github.sumyabazar1.prayer_times".equals(e.pkg)) return e.ambient = 0xFF10B981;
+        if ("com.gathin.tvhome.allapps".equals(e.pkg)) return e.ambient = 0xFF94A3B8;
+        e.ambient = vividColor(e.banner != null ? e.banner : e.icon);
         return e.ambient;
     }
 
